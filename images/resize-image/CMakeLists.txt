@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( resize-image )
+find_package( OpenCV REQUIRED )
+add_executable( resize-image resize-image.cpp )
+target_link_libraries( resize-image ${OpenCV_LIBS} )
