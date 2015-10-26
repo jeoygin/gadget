@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( stretch-histogram )
+find_package( OpenCV REQUIRED )
+add_executable( stretch-histogram stretch-histogram.cpp )
+target_link_libraries( stretch-histogram ${OpenCV_LIBS} )
