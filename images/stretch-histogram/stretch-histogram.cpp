@@ -86,20 +86,20 @@ Mat stretch(const Mat& src) {
   Mat image;
 
   if (src.channels() == 3) {
-    cvtColor(src, image, CV_BGR2GRAY, 0);
+    cvtColor(src, image, CV_BGR2GRAY);
   } else {
     image = src;
   }
 
   calcHist(&image, 1, channels, Mat(), hist, 1, histSize, ranges);
-  return stretch_hist(image, hist, 0);
+  return stretch_hist(src, hist, 0);
 }
 
 int main(int argc, char** argv) {
   char buf[512];
   if (argc >= 3) {
     struct stat st = {0};
-    strncpy(buf, argv[1], sizeof(buf));
+    strncpy(buf, argv[2], sizeof(buf));
     char * dir = dirname(buf);
     makedirs(dir, 0775);
 
