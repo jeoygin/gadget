@@ -1,0 +1,7 @@
+caffeRoot: /path/to/caffe/root/
+proto: /path/to/deploy/prototxt
+model: /path/to/caffemodel
+params:
+  - conv1
+  - conv2
+

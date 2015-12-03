@@ -1,0 +1,16 @@
+caffeRoot: /path/to/caffe/root/
+
+source:
+  - proto: /path/to/deploy/prototxt
+    model: /path/to/caffemodel
+  - proto: /path/to/another/deply/prototxt
+    model: /path/to/another/caffemodel
+
+target:
+  id: 0
+  output: /path/to/output/model
+
+replace:
+  conv4-test: conv4-test@1
+  innerpdt1-test: innerpdt1-test@1
+  innerpdt2-test: innerpdt2-test@1
