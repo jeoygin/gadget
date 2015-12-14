@@ -69,7 +69,11 @@ Mat stretch_hist(const Mat& src, const MatND& hist, double minVal) {
     } else if (i > imax) {
       lut.at<uchar>(i) = 255;
     } else {
-      lut.at<uchar>(i) = static_cast<uchar>(255*(i-imin)/(imax-imin)+0.5);
+      if (imax != imin) {
+        lut.at<uchar>(i) = static_cast<uchar>(255*(i-imin)/(imax-imin)+0.5);
+      } else {
+        lut.at<uchar>(i) = i;
+      }
     }
   }
 
@@ -90,7 +94,6 @@ Mat stretch(const Mat& src) {
   } else {
     image = src;
   }
-
   calcHist(&image, 1, channels, Mat(), hist, 1, histSize, ranges);
   return stretch_hist(src, hist, 0);
 }
@@ -102,8 +105,8 @@ int main(int argc, char** argv) {
     strncpy(buf, argv[2], sizeof(buf));
     char * dir = dirname(buf);
     makedirs(dir, 0775);
-
-    Mat src = imread(argv[1], 1);
+    cout << argv[1] << endl;
+    Mat src = imread(argv[1], CV_LOAD_IMAGE_UNCHANGED);
     Mat dst = stretch(src);
     imwrite(argv[2], dst);
   } else {
@@ -114,7 +117,7 @@ int main(int argc, char** argv) {
       char * dir = dirname(buf);
       makedirs(dir, 0775);
 
-      Mat src = imread(srcpath, 1);
+      Mat src = imread(srcpath, CV_LOAD_IMAGE_UNCHANGED);
       Mat dst = stretch(src);
       imwrite(dstpath, dst);
     }
