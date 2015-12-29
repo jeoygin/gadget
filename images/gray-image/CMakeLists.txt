@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( gray-image )
+find_package( OpenCV REQUIRED )
+add_executable( gray-image gray-image.cpp )
+target_link_libraries( gray-image ${OpenCV_LIBS} )
