@@ -34,6 +34,7 @@ int makedirs(char * path, mode_t mode) {
 int main(int argc, char** argv) {
     string oldpath, newpath;
     char buf[512];
+    int processed = 0;
     while (cin >> oldpath >> newpath) {
         struct stat st = {0};
         strncpy(buf, newpath.c_str(), sizeof(buf));
@@ -41,7 +42,15 @@ int main(int argc, char** argv) {
         makedirs(dir, 0775);
         if (rename(oldpath.c_str(), newpath.c_str()) == -1) {
             int errsv = errno;
-            cerr << errsv << ": " << oldpath << " " << newpath << endl;                }
+            cerr << errsv << ": " << oldpath << " " << newpath << endl;
+        }
+        ++processed;
+        if (processed % 1000 == 0) {
+            cout << "Processed " << processed << " files." << endl;
+        }
+    }
+    if (processed % 1000 != 0) {
+        cout << "Processed " << processed << " files." << endl;
     }
     return 0;
 }
