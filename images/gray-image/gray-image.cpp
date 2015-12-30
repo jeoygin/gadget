@@ -53,6 +53,9 @@ int main(int argc, char** argv) {
         cout << "Processed " << processed << " files." << endl;
       }
     }
+    if (processed % 1000 != 0) {
+      cout << "Processed " << processed << " files." << endl;
+    }
   }
 
   return 0;

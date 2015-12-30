@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
     cv::imwrite(argv[2], dst);
   } else {
     string srcpath, dstpath;
+    int processed = 0;
     while (cin >> srcpath >> dstpath) {
       struct stat st = {0};
       strncpy(buf, dstpath.c_str(), sizeof(buf));
@@ -56,6 +57,14 @@ int main(int argc, char** argv) {
       cv::Mat src = cv::imread(srcpath, CV_LOAD_IMAGE_UNCHANGED);
       cv::Mat dst = invert(src);
       cv::imwrite(dstpath, dst);
+
+      ++processed;
+      if (processed % 1000 == 0) {
+        cout << "Processed " << processed << " files." << endl;
+      }
+    }
+    if (processed % 1000 != 0) {
+      cout << "Processed " << processed << " files." << endl;
     }
   }
 

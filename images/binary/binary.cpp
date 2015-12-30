@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     imwrite(argv[2], dst);
   } else {
     string srcpath, dstpath;
-    int count = 0;
+    int processed = 0;
     while (cin >> srcpath >> dstpath) {
       struct stat st = {0};
       strncpy(buf, dstpath.c_str(), sizeof(buf));
@@ -61,9 +61,13 @@ int main(int argc, char** argv) {
       Mat src = imread(srcpath, 1);
       Mat dst = doit(src);
       imwrite(dstpath, dst);
-      if (++count % 1000 == 0) {
-        cout << "Processed " << count << " files" << endl;
+      ++processed;
+      if (processed % 1000 == 0) {
+        cout << "Processed " << processed << " files." << endl;
       }
+    }
+    if (processed % 1000 != 0) {
+      cout << "Processed " << processed << " files." << endl;
     }
   }
 

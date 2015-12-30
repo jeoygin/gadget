@@ -111,6 +111,7 @@ int main(int argc, char** argv) {
     imwrite(argv[2], dst);
   } else {
     string srcpath, dstpath;
+    int processed = 0;
     while (cin >> srcpath >> dstpath) {
       struct stat st = {0};
       strncpy(buf, dstpath.c_str(), sizeof(buf));
@@ -120,6 +121,13 @@ int main(int argc, char** argv) {
       Mat src = imread(srcpath, CV_LOAD_IMAGE_UNCHANGED);
       Mat dst = stretch(src);
       imwrite(dstpath, dst);
+      ++processed;
+      if (processed % 1000 == 0) {
+        cout << "Processed " << processed << " files." << endl;
+      }
+    }
+    if (processed % 1000 != 0) {
+      cout << "Processed " << processed << " files." << endl;
     }
   }
 

@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
   } else {
     string srcpath, dstpath;
     int angle;
-
+    int processed = 0;
     while (cin >> srcpath >> dstpath >> angle) {
       struct stat st = {0};
       strncpy(buf, dstpath.c_str(), sizeof(buf));
@@ -60,6 +60,13 @@ int main(int argc, char** argv) {
       Mat src = imread(srcpath);
       Mat dst = rotate(src, angle);
       imwrite(dstpath, dst);
+      ++processed;
+      if (processed % 1000 == 0) {
+        cout << "Processed " << processed << " files." << endl;
+      }
+    }
+    if (processed % 1000 != 0) {
+      cout << "Processed " << processed << " files." << endl;
     }
   }
 
