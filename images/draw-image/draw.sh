@@ -1,16 +1,22 @@
 #!/bin/bash
 
-if [ $# -lt 4 ]; then
-  echo "Usage: $(basename $0) drawpy imglist srcdir dstdir"
+if [ $# -lt 2 ]; then
+  echo "Usage: $(basename $0) DRAWPY WORKDIR [LISTFILE]"
   exit 1
 fi
 
-drawpy="$1"
-imglist="$2"
-src="$3"
-dst="$4"
+DRAWPY="$1"
+WORKDIR="$2"
 
-for img in `cat $imglist`
-do
-  python "$drawpy" "$src/$img" "$dst/$img" "$dst/$img.draw"
+exec 6<&0
+if [ $# -gt 2 ]; then
+  exec < "$3"
+fi
+
+while read line; do
+  parts=( $line )
+  img=${parts[0]##*/}
+  python "$DRAWPY" "${parts[0]}" "$WORKDIR/$img" -s "${parts[1]}"
 done
+
+exec 0<&6 6<&-
