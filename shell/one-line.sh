@@ -10,3 +10,22 @@ git format-patch -k --stdout R1..R2 | git am -3 -k
 # Download tarball and extract
 $ curl http://www.example.com/test.tar.gz | tar zx
 
+# rsync
+$ rsync -avP source destination
+
+# Download and write to file
+$ curl -sL -o /path/to/local/test.tar.gz http://www.example.com/test.tar.gz
+
+# Start HTTP Static Server
+$ python -m SimpleHTTPServer 8000 # python 2
+$ python -m http.server 8000 # python 3
+$ npm install -g http-server && http-server -p 8000 # Node.js
+$ curl https://gist.github.com/willurd/5720255 # for more other languages
+
+# Replace foo in last command with bar
+$ ^foo^bar
+
+# Create backup file
+$ cp filename{,.bak}
+
+
