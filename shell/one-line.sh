@@ -28,4 +28,8 @@ $ ^foo^bar
 # Create backup file
 $ cp filename{,.bak}
 
+# CentOS Package Manager
+$ yum list installed
+$ rpm -ql packageName
+
 
