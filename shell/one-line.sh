@@ -32,4 +32,16 @@ $ cp filename{,.bak}
 $ yum list installed
 $ rpm -ql packageName
 
+#
+# List Listening Network Port
+#
+
+## Max OSX
+$ netstat -anp tcp | grep -i 'listen'
+$ lsof -iTCP -nP | grep -i 'listen'
+$ lsof -iTCP -sTCP:LISTEN -nP
+$ lsof -i :$port -nP
+
+## Linux
+$ netstat -ntlp
 
