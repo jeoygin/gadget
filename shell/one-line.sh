@@ -85,3 +85,23 @@ $ curl https://gist.github.com/willurd/5720255 # for more other languages
 $ yum list installed
 $ rpm -ql packageName
 
+#
+# Dynamic Linker Run-time Bindings
+#
+
+## Rebuild the cache
+
+$ ldconfig
+
+## Only process the specified directories
+
+$ ldconfig -n /opt/dummy/lib
+
+## Display current libraries from the cache
+
+$ ldconfig -p
+
+## Display libraries from every directory
+
+$ ldconfig -v
+
