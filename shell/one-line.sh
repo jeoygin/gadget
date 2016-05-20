@@ -19,7 +19,13 @@ $ awk '{print $1,$2}' FILE | xargs -n 2 bash -c 'SHELL $0 + $1'
 #
 
 ## Change date format
+
+### Mac
 date -j -f "%Y%m%d%H%M%S" "20160303010203" +"%s"
+
+### Linux
+date --date "2016-03-03T01:02:03"  +"%s"
+date --date "@1456938123"  +"%Y%m%d%H%M%S"
 
 #
 # Awk
