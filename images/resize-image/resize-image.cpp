@@ -4,8 +4,17 @@
 #include <sys/stat.h>
 #include <libgen.h>
 #include <iostream>
+#include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 using namespace std;
+
+namespace po = boost::program_options;
+
+void print_usage(string app_name, po::options_description desc) {
+    cout << "Usage: " << app_name << " [options]" << endl << endl;
+    cout << desc << endl;
+}
 
 int makedirs(char * path, mode_t mode) {
     struct stat st = {0};
@@ -35,30 +44,111 @@ cv::Mat resize(cv::Mat src, int width, int height) {
   return dst;
 }
 
-int main(int argc, char** argv) {
+void resize_image(const string& srcpath, const string& dstpath,
+                  int width, int height, bool keep_ratio) {
   char buf[512];
-  if (argc >= 5) {
-    struct stat st = {0};
-    strncpy(buf, argv[2], sizeof(buf));
-    char * dir = dirname(buf);
-    makedirs(dir, 0775);
+  struct stat st = {0};
+  strncpy(buf, dstpath.c_str(), sizeof(buf));
+  char * dir = dirname(buf);
+  makedirs(dir, 0775);
 
-    cv::Mat src = cv::imread(argv[1], CV_LOAD_IMAGE_UNCHANGED);
-    cv::Mat dst = resize(src, atoi(argv[3]), atoi(argv[4]));
-    cv::imwrite(argv[2], dst);
+  cv::Mat src = cv::imread(srcpath, CV_LOAD_IMAGE_UNCHANGED);
+
+  cv::Mat dst;
+  if (!keep_ratio) {
+      dst = resize(src, width, height);
   } else {
-    string srcpath, dstpath;
-    int width, height;
+      int tmp_width, tmp_height;
+      if (width * src.rows < height * src.cols) {
+          tmp_width = width;
+          tmp_height = src.rows * width / src.cols;
+      } else {
+          tmp_height = height;
+          tmp_width = src.cols * height / src.rows;
+      }
+      cv::Mat tmp = resize(src, tmp_width, tmp_height);
+
+      dst = cv::Mat::zeros(width, height, src.type());
+      tmp.copyTo(dst(cv::Rect((width - tmp_width) / 2,
+                              (height - tmp_height) / 2,
+                              tmp_width, tmp_height)));
+  }
+
+  cv::imwrite(dstpath, dst);
+}
+
+int main(int argc, char** argv) {
+  string app_name = boost::filesystem::basename(argv[0]);
+  bool keep_ratio = false, stdin = false;
+  string srcpath, dstpath;
+  int width, height;
+
+  po::options_description desc("Options");
+  desc.add_options()
+      ("help", "print help messages")
+      ("keep-aspect-ratio", "keep aspect ratio")
+      ("stdin", "read arguments from standard input")
+      ("src,s", po::value<string>(&srcpath), "src path")
+      ("dst,d", po::value<string>(&dstpath), "dst path")
+      ("width,w", po::value<int>(&width), "width")
+      ("height", po::value<int>(&height), "height");
+
+  po::positional_options_description positionalOptions;
+  positionalOptions.add("src", 1);
+  positionalOptions.add("dst", 1);
+  positionalOptions.add("width", 1);
+  positionalOptions.add("height", 1);
+
+  po::variables_map vm;
+
+  try {
+    po::store(po::command_line_parser(argc, argv).options(desc)
+              .positional(positionalOptions).run(), vm);
+
+    if (vm.count("help")) {
+        print_usage(app_name, desc);
+        return 0;
+    }
+
+    if (vm.count("keep-aspect-ratio")) {
+        keep_ratio = true;
+    }
+
+    if (vm.count("stdin")) {
+        stdin = true;
+    }
+
+    if (vm.count("width")) {
+        width = vm["width"].as<int>();
+    }
+
+    if (vm.count("height")) {
+        height = vm["height"].as<int>();
+    }
+
+    if (!stdin && (width <= 0 || height <= 0)) {
+        print_usage(app_name, desc);
+        return -1;
+    }
+
+    po::notify(vm);
+  } catch (boost::program_options::required_option& e) {
+    cerr << "ERROR: " << e.what() << endl << endl;
+    print_usage(app_name, desc);
+    return -1;
+  } catch (boost::program_options::error& e) {
+    cerr << "ERROR: " << e.what() << endl << endl;
+    print_usage(app_name, desc);
+    return -1;
+  }
+
+  char buf[512];
+  if (!stdin) {
+     resize_image(srcpath, dstpath, width, height, keep_ratio);
+  } else {
     int processed = 0;
     while (cin >> srcpath >> dstpath >> width >> height) {
-      struct stat st = {0};
-      strncpy(buf, dstpath.c_str(), sizeof(buf));
-      char * dir = dirname(buf);
-      makedirs(dir, 0775);
-
-      cv::Mat src = cv::imread(srcpath, CV_LOAD_IMAGE_UNCHANGED);
-      cv::Mat dst = resize(src, width, height);
-      cv::imwrite(dstpath, dst);
+      resize_image(srcpath, dstpath, width, height, keep_ratio);
       ++processed;
       if (processed % 1000 == 0) {
         cout << "Processed " << processed << " files." << endl;

@@ -1,5 +1,18 @@
 cmake_minimum_required(VERSION 2.8)
-project( resize-image )
+
 find_package( OpenCV REQUIRED )
-add_executable( resize-image resize-image.cpp )
-target_link_libraries( resize-image ${OpenCV_LIBS} )
+
+set ( PROJECT_NAME resize-image )
+set ( SRC_LIST resize-image.cpp )
+
+INCLUDE_DIRECTORIES(/usr/include)
+INCLUDE_DIRECTORIES(/usr/local/include)
+
+LINK_DIRECTORIES(/usr/local/lib)
+
+add_executable( ${PROJECT_NAME} ${SRC_LIST} )
+
+target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} )
+target_link_libraries( ${PROJECT_NAME} boost_system )
+target_link_libraries( ${PROJECT_NAME} boost_filesystem )
+target_link_libraries( ${PROJECT_NAME} boost_program_options )
