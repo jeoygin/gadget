@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
       ("src,s", po::value<string>(&srcpath), "src path")
       ("dst,d", po::value<string>(&dstpath), "dst path")
       ("width,w", po::value<int>(&width), "width")
-      ("height", po::value<int>(&height), "height");
+      ("height,h", po::value<int>(&height), "height");
 
   po::positional_options_description positionalOptions;
   positionalOptions.add("src", 1);
