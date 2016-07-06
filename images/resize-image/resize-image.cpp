@@ -118,19 +118,6 @@ int main(int argc, char** argv) {
         stdin = true;
     }
 
-    if (vm.count("width")) {
-        width = vm["width"].as<int>();
-    }
-
-    if (vm.count("height")) {
-        height = vm["height"].as<int>();
-    }
-
-    if (!stdin && (width <= 0 || height <= 0)) {
-        print_usage(app_name, desc);
-        return -1;
-    }
-
     po::notify(vm);
   } catch (boost::program_options::required_option& e) {
     cerr << "ERROR: " << e.what() << endl << endl;
@@ -138,6 +125,11 @@ int main(int argc, char** argv) {
     return -1;
   } catch (boost::program_options::error& e) {
     cerr << "ERROR: " << e.what() << endl << endl;
+    print_usage(app_name, desc);
+    return -1;
+  }
+
+  if (!stdin && (width <= 0 || height <= 0)) {
     print_usage(app_name, desc);
     return -1;
   }
