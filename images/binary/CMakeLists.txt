@@ -1,5 +1,18 @@
 cmake_minimum_required(VERSION 2.8)
-project( binary )
+
 find_package( OpenCV REQUIRED )
-add_executable( binary binary.cpp)
-target_link_libraries( binary ${OpenCV_LIBS} binary_v2 )
+
+set ( PROJECT_NAME binary )
+set ( SRC_LIST binary.cpp )
+
+INCLUDE_DIRECTORIES(/usr/include)
+INCLUDE_DIRECTORIES(/usr/local/include)
+
+LINK_DIRECTORIES(/usr/local/lib)
+
+add_executable( ${PROJECT_NAME} ${SRC_LIST} )
+
+target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} )
+target_link_libraries( ${PROJECT_NAME} boost_system )
+target_link_libraries( ${PROJECT_NAME} boost_filesystem )
+target_link_libraries( ${PROJECT_NAME} boost_program_options )
