@@ -42,6 +42,13 @@ echo "/usr/local/bin"  | awk '{match($1, "[^/]+$"); print substr($1, 0, RSTART-1
 echo "/usr/local/bin"  | awk '{split($1, parts ,"/"); print parts[length(parts)]}'
 
 #
+# Search
+#
+
+## Multiple lines search
+echo $'a\nb\nc\nd\n' | pcregrep -M 'b\nc'
+
+#
 # Git
 #
 
