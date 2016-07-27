@@ -118,3 +118,15 @@ $ ldconfig -p
 
 $ ldconfig -v
 
+#
+# List required shared libraries
+#
+
+## Mac OS
+
+$ otool -L /path/to/bin
+
+## Linux
+
+$ ldd /path/to/bin
+$ objdump -p /path/to/bin
