@@ -148,7 +148,11 @@ int main(int argc, char** argv) {
         cout << srcpath << " " << dstpath << " "
              << width << " " << height << endl;
       }
-      resize_image(srcpath, dstpath, width, height, keep_ratio);
+      try {
+        resize_image(srcpath, dstpath, width, height, keep_ratio);
+      } catch (cv::Exception& e) {
+        cout << "FAIL: " << srcpath << endl;
+      }
       ++processed;
       if (processed % 1000 == 0) {
         cout << "Processed " << processed << " files." << endl;
