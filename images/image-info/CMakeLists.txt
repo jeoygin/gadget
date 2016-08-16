@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.8)
 set ( PROJECT_NAME image-info )
 set ( SRC_LIST image-info.cpp )
 
+INCLUDE_DIRECTORIES(/usr/include/opencv)
+INCLUDE_DIRECTORIES(/usr/include/opencv2)
 INCLUDE_DIRECTORIES(/usr/include)
 INCLUDE_DIRECTORIES(/usr/local/include)
 
