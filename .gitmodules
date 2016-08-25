@@ -1,0 +1,3 @@
+[submodule "images/imagedb/yaml-cpp"]
+	path = images/imagedb/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp

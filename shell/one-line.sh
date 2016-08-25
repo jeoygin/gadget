@@ -68,6 +68,14 @@ $ curl -sL -o /path/to/local/test.tar.gz http://www.example.com/test.tar.gz
 ## rsync
 $ rsync -avP source destination
 
+## Netcat
+
+$ nc -l -p 8888 > out.dat # receiver
+$ nc -w 3 [destination] 8888 < in.dat # sender
+
+$ nc -l -p 8888 | tar xvp # receiver
+$ tar zcp /some/dir | nc -w 3 [destination] 8888
+
 #
 # List Listening Network Port
 #
