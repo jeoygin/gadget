@@ -1,23 +1,30 @@
 cmake_minimum_required(VERSION 2.8)
 
-set ( PROJECT_NAME imagedb )
-set ( SRC_LIST imagedb.cpp db.cpp db_leveldb.cpp db_filedb.cpp base64.cpp fs.cpp)
+option(LOCAL_INSTALL_DIR "Path to local install dir")
 
-INCLUDE_DIRECTORIES(/usr/include/opencv)
-INCLUDE_DIRECTORIES(/usr/include/opencv2)
-INCLUDE_DIRECTORIES(/usr/include)
-INCLUDE_DIRECTORIES(/usr/local/include)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g -O2")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-LINK_DIRECTORIES(/usr/local/lib)
+include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(/usr/include/opencv)
+include_directories(/usr/include/opencv2)
+include_directories(/usr/include)
+include_directories(/usr/local/include)
 
-add_executable( ${PROJECT_NAME} ${SRC_LIST} )
+if(EXISTS ${LOCAL_INSTALL_DIR}/lib)
+  link_directories(${LOCAL_INSTALL_DIR}/lib)
+endif()
+link_directories(/usr/local/lib)
 
-target_link_libraries( ${PROJECT_NAME} boost_system )
-target_link_libraries( ${PROJECT_NAME} boost_filesystem )
-target_link_libraries( ${PROJECT_NAME} boost_program_options )
-target_link_libraries( ${PROJECT_NAME} leveldb )
-target_link_libraries( ${PROJECT_NAME} glog )
-target_link_libraries( ${PROJECT_NAME} opencv_core )
-target_link_libraries( ${PROJECT_NAME} opencv_highgui )
-target_link_libraries( ${PROJECT_NAME} opencv_imgproc )
-target_link_libraries( ${PROJECT_NAME} opencv_imgcodecs )
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp/include)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/base64)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/fs)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/db)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/cmd)
+
+add_executable( imagedb imagedb.cpp )
+
+target_link_libraries( imagedb cmd )

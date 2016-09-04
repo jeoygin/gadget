@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace fs {
-    int make_dir(char * dir, mode_t mode);
+    int make_dir(const char * dir, mode_t mode);
     int make_dir(const string& dir);
     string get_dirname(const string& path);
     string get_basename(const string& path);

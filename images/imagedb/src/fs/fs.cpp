@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-#include "fs.hpp"
+#include "fs/fs.hpp"
 
 namespace fs {
     int make_dir(const char * dir, mode_t mode) {
@@ -22,7 +22,7 @@ namespace fs {
         }
 
         char subpath[512] = "";
-        char * delim = strrchr(dir, '/');
+        const char * delim = strrchr(dir, '/');
         if (delim != NULL) {
             strncat(subpath, dir, delim - dir);
             make_dir((const char *)subpath, mode);
@@ -67,7 +67,7 @@ namespace fs {
         }
         struct dirent* dp;
         while ((dp = readdir(dirp)) != NULL) {
-            string fname(dp->d_name, dp->d_namlen);
+            string fname(dp->d_name, strnlen(dp->d_name, 256));
             stringstream ss;
             ss << dir << "/" << fname;
             string fpath = ss.str();

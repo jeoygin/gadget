@@ -1,15 +1,30 @@
-#include "db.hpp"
-#include "db_leveldb.hpp"
-#include "db_filedb.hpp"
+#include "db/db.hpp"
+#include "db/db_filedb.hpp"
+
+#ifdef WITH_LEVELDB
+#include "db/db_leveldb.hpp"
+#endif
+
+#ifdef WITH_ROCKSDB
+#include "db/db_rocksdb.hpp"
+#endif
 
 #include <string>
 #include <iostream>
 
 namespace db {
     DB* get_db(const string& backend) {
+#ifdef WITH_LEVELDB
         if (backend == "leveldb") {
             return new LevelDB();
         }
+#endif
+
+#ifdef WITH_ROCKSDB
+        if (backend == "rocksdb") {
+            return new RocksDB();
+        }
+#endif
 
         if (backend == "filedb") {
             return new FileDB();
@@ -30,8 +45,7 @@ namespace db {
 
         DB* db = get_db(backend);
         if (db == NULL && backend != "filedb") {
-            backend = "filedb";
-            db = get_db(backend);
+            LOG(ERROR) << "Unsupported db backend: " << backend;
         }
 
         if (db != NULL) {

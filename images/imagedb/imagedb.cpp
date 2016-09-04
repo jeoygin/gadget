@@ -8,8 +8,8 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
-#include "db.hpp"
-#include "base64.h"
+#include "config.hpp"
+#include "cmd/command_handler.hpp"
 
 using namespace std;
 
@@ -20,137 +20,10 @@ void print_usage(string app_name, po::options_description desc) {
     cout << desc << endl;
 }
 
-int makedirs(char * path, mode_t mode) {
-    struct stat st = {0};
-
-    if (stat(path, &st) == 0) {
-        if (S_ISDIR(st.st_mode) == 0) {
-            return -1;
-        }
-        return 0;
-    }
-
-    char subpath[512] = "";
-    char * delim = strrchr(path, '/');
-    if (delim != NULL) {
-        strncat(subpath, path, delim - path);
-        makedirs(subpath, mode);
-    }
-    if (mkdir(path, mode) != 0) {
-        return -1;
-    }
-    return 0;
-}
-
-cv::Mat resize(cv::Mat src, int width, int height) {
-    cv::Mat dst;
-    cv::resize(src, dst, cv::Size(width, height));
-    return dst;
-}
-
-void resize_image(const string& srcpath, const string& dstpath,
-                  int width, int height, bool keep_ratio) {
-    char buf[512];
-    struct stat st = {0};
-    strncpy(buf, dstpath.c_str(), sizeof(buf));
-    char * dir = dirname(buf);
-    makedirs(dir, 0775);
-
-    cv::Mat src = cv::imread(srcpath, CV_LOAD_IMAGE_UNCHANGED);
-
-    cv::Mat dst;
-    if (!keep_ratio) {
-        dst = resize(src, width, height);
-    } else {
-        int tmp_width, tmp_height;
-        if (width * src.rows < height * src.cols) {
-            tmp_width = width;
-            tmp_height = max(1, src.rows * width / src.cols);
-        } else {
-            tmp_height = height;
-            tmp_width = max(1, src.cols * height / src.rows);
-        }
-        cv::Mat tmp = resize(src, tmp_width, tmp_height);
-
-        dst = cv::Mat::zeros(width, height, src.type());
-        tmp.copyTo(dst(cv::Rect((width - tmp_width) / 2,
-                                (height - tmp_height) / 2,
-                                tmp_width, tmp_height)));
-    }
-
-    cv::imwrite(dstpath, dst);
-}
-
-int handle_cmd(const string& cmd, const string& src,
-                const string& dst, istream & listis) {
-    if (cmd == "list") {
-        db::DB* db = db::open_db(src, db::READ);
-        for (db::Iterator* it = db->new_iterator(); it->valid(); it->next()) {
-            cout << it->key() << endl;
-        }
-    } else if (cmd == "show") {
-        db::DB* src_db = db::open_db(src, db::READ);
-        int processed = 0;
-        for (string line; std::getline(listis, line); ) {
-            try {
-                string value = src_db->get(line);
-                if (!value.empty()) {
-                    vector<unsigned char> img_content = base64_decode(value);
-                    cv::Mat img = cv::imdecode(img_content, CV_LOAD_IMAGE_UNCHANGED);
-                    cv::imshow("image", img);
-                    cv::waitKey();
-                }
-            } catch(cv::Exception& e) {
-                LOG(ERROR) << "FAIL: " << line << endl << e.what() << endl;
-            }
-            ++processed;
-            if (processed % 1000 == 0) {
-                cout << "Processed " << processed << " records." << endl;
-            }
-        }
-
-        if (processed % 1000 != 0) {
-            cout << "Processed " << processed << " records." << endl;
-        }
-    } else {
-        if (dst.empty()) {
-            return -1;
-        }
-
-        db::DB* src_db = db::open_db(src, db::READ);
-        db::DB* dst_db = db::open_db(dst, db::WRITE);
-
-        db::Writer* writer = dst_db->new_writer();
-        int processed = 0;
-        for (string line; std::getline(listis, line); ) {
-            try {
-                if (cmd == "copy") {
-                    string value = src_db->get(line);
-                    if (!value.empty()) {
-                        writer->put(line, value);
-                    }
-                }
-            } catch(cv::Exception& e) {
-                LOG(ERROR) << "FAIL: " << line << endl << e.what() << endl;
-            }
-            ++processed;
-            if (processed % 1000 == 0) {
-                cout << "Processed " << processed << " records." << endl;
-            }
-        }
-        if (processed % 1000 != 0) {
-            cout << "Processed " << processed << " records." << endl;
-        }
-        writer->flush();
-    }
-
-    return 0;
-}
-
 int main(int argc, char** argv) {
     string app_name = boost::filesystem::basename(argv[0]);
-    bool stdin = false, verbose = false;
-    string listpath, srcpath, dstpath, cmd;
+    bool verbose = false;
+    string cmd, srcpath, dstpath, opsfile, listfile;
 
     po::options_description desc("Options");
     desc.add_options()
@@ -158,7 +31,8 @@ int main(int argc, char** argv) {
         ("cmd,c", po::value<string>(&cmd), "command")
         ("src,s", po::value<string>(&srcpath), "src path")
         ("dst,d", po::value<string>(&dstpath), "dst path")
-        ("list,l", po::value<string>(&listpath), "image list path")
+        ("list,l", po::value<string>(&listfile), "image list file path")
+        ("ops,o", po::value<string>(&opsfile), "operations config file path")
         ("verbose,v", "produce verbose output");
 
     po::positional_options_description positionalOptions;
@@ -197,14 +71,9 @@ int main(int argc, char** argv) {
         cmd = "list";
     }
 
-    int ret_code;
-    if (!listpath.empty()) {
-        ifstream listifs(listpath);
-        ret_code = handle_cmd(cmd, srcpath, dstpath, listifs);
-        listifs.close();
-    } else {
-        ret_code = handle_cmd(cmd, srcpath, dstpath, cin);
-    }
+    ImageDBConfig config(srcpath, dstpath, opsfile, listfile);
+    cmd::CommandHandler cmd_handler;
+    int ret_code = cmd_handler.process(cmd, config);
 
     if (ret_code < 0) {
         print_usage(app_name, desc);
