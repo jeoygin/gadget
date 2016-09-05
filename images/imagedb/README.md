@@ -45,6 +45,15 @@ $ cat img.lst
 test.png
 ```
 
+### Copy images ###
+
+```
+$ bin/imagedb -s /path/to/local/dir -d leveldb:/path/to/leveldb/dir -c save -l img.lst
+$ cat img.lst
+0.png::0.jpg
+1.png::1.jpg
+```
+
 ### Pipe Operations ###
 
 ```
@@ -59,6 +68,9 @@ $ cat ops.yaml
   y: $4
   w: $5
   h: $6
+- cmd: reisze
+  width: 28
+  height: 28
 - cmd: gray
 - cmd: invert
 - cmd: equ
