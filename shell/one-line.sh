@@ -127,12 +127,13 @@ $ ldconfig -p
 $ ldconfig -v
 
 #
-# List required shared libraries
+# Shared Libraries Tool
 #
 
 ## Mac OS
 
-$ otool -L /path/to/bin
+$ otool -L /path/to/bin # List dependent shared libraries
+$ install_name_tool
 
 ## Linux
 
