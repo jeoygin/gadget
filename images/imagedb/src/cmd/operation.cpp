@@ -1,5 +1,6 @@
 #include "cmd/operation.hpp"
 #include "cmd/op_binary.hpp"
+#include "cmd/op_cat.hpp"
 #include "cmd/op_clip.hpp"
 #include "cmd/op_equ.hpp"
 #include "cmd/op_gray.hpp"
@@ -21,6 +22,8 @@ namespace op {
         Operation* op = NULL;
         if (cmd == "binary") {
             op = new BinaryOP();
+        } else if (cmd == "cat") {
+            op = new CatOP();
         } else if (cmd == "clip") {
             op = new ClipOP();
         } else if (cmd == "equ") {
