@@ -123,6 +123,7 @@ namespace cmd {
 
             if (!config.dst().empty()) {
                 ops_config["cmd"] = "save";
+                ops_config["key"] = "$2";
                 boost::shared_ptr<op::Operation> save_op = op::get_operation(ops_config);
                 ops.push_back(save_op);
                 op_ptr.get()->post(save_op);

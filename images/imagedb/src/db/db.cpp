@@ -5,6 +5,10 @@
 #include "db/db_leveldb.hpp"
 #endif
 
+#ifdef WITH_LMDB
+#include "db/db_lmdb.hpp"
+#endif
+
 #ifdef WITH_ROCKSDB
 #include "db/db_rocksdb.hpp"
 #endif
@@ -17,6 +21,12 @@ namespace db {
 #ifdef WITH_LEVELDB
         if (backend == "leveldb") {
             return new LevelDB();
+        }
+#endif
+
+#ifdef WITH_LMDB
+        if (backend == "lmdb") {
+            return new LMDB();
         }
 #endif
 

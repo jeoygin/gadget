@@ -13,6 +13,12 @@ if(ROCKSDB_LIB)
   add_definitions(-DWITH_ROCKSDB)
 endif()
 
+find_library(LMDB_LIB NAMES lmdb PATHS ${LOCAL_INSTALL_DIR}/lib)
+if(LMDB_LIB)
+  set(SRC ${SRC} db_lmdb.cpp)
+  add_definitions(-DWITH_LMDB)
+endif()
+
 add_library(db ${SRC})
 
 target_link_libraries(db fs)
@@ -24,6 +30,10 @@ target_link_libraries(db pthread)
 
 if(LEVELDB_LIB)
   target_link_libraries(db leveldb)
+endif()
+
+if(LMDB_LIB)
+  target_link_libraries(db lmdb)
 endif()
 
 if(ROCKSDB_LIB)
