@@ -53,19 +53,19 @@ namespace db {
         return new LMDBWriter(&mdb_dbi_, mdb_txn);
     }
 
+    LMDBReader* LMDB::new_reader() {
+        if (reader_ == NULL) {
+            MDB_txn* mdb_txn;
+            MDB_CHECK(mdb_txn_begin(mdb_env_, NULL, MDB_RDONLY, &mdb_txn));
+            MDB_CHECK(mdb_dbi_open(mdb_txn, NULL, 0, &mdb_dbi_));
+            reader_ = new LMDBReader(&mdb_dbi_, mdb_txn);
+        }
+        return reader_;
+    }
+
     string LMDB::get(const string& key) {
-        MDB_txn* mdb_txn;
-        MDB_CHECK(mdb_txn_begin(mdb_env_, NULL, MDB_RDONLY, &mdb_txn));
-        MDB_CHECK(mdb_dbi_open(mdb_txn, NULL, 0, &mdb_dbi_));
-
-        MDB_val mdb_key, mdb_value;
-        mdb_key.mv_data = const_cast<char*>(key.data());
-        mdb_key.mv_size = key.size();
-        int mdb_status = mdb_get(mdb_txn, mdb_dbi_, &mdb_key, &mdb_value);
-        MDB_CHECK(mdb_status);
-
-        return string(static_cast<const char*>(mdb_value.mv_data),
-                      mdb_value.mv_size);
+        LMDBReader* reader = new_reader();
+        return reader->get(key);
     }
 
     void LMDB::put(const string& key, const string& value) {
@@ -80,5 +80,15 @@ namespace db {
         mdb_value.mv_data = const_cast<char*>(value.data());
         mdb_value.mv_size = value.size();
         MDB_CHECK(mdb_put(mdb_txn_, *mdb_dbi_, &mdb_key, &mdb_value, 0));
+    }
+
+    string LMDBReader::get(const string& key) {
+        MDB_val mdb_key, mdb_value;
+        mdb_key.mv_data = const_cast<char*>(key.data());
+        mdb_key.mv_size = key.size();
+        MDB_CHECK(mdb_get(mdb_txn_, *mdb_dbi_, &mdb_key, &mdb_value));
+
+        return string(static_cast<const char*>(mdb_value.mv_data),
+                      mdb_value.mv_size);
     }
  } // namespace db

@@ -81,11 +81,28 @@ namespace db {
         MDB_txn* mdb_txn_;
     };
 
+    class LMDBReader {
+    public:
+        explicit LMDBReader(MDB_dbi* mdb_dbi, MDB_txn* mdb_txn)
+            : mdb_dbi_(mdb_dbi), mdb_txn_(mdb_txn) {}
+
+        virtual ~LMDBReader() {}
+
+        virtual string get(const string& key);
+    private:
+        MDB_dbi* mdb_dbi_;
+        MDB_txn* mdb_txn_;
+    };
+
     class LMDB : public DB {
     public:
-        LMDB() : mdb_env_(NULL) {}
+        LMDB() : mdb_env_(NULL), reader_(NULL) {}
 
         virtual ~LMDB() {
+            if (reader_ != NULL) {
+                delete reader_;
+                reader_ = NULL;
+            }
             close();
         }
 
@@ -107,9 +124,13 @@ namespace db {
 
         virtual LMDBWriter* new_writer();
 
+        virtual LMDBReader* new_reader();
+
     private:
         MDB_env* mdb_env_;
         MDB_dbi mdb_dbi_;
+
+        LMDBReader* reader_;
     };
 } // namespace db
 
