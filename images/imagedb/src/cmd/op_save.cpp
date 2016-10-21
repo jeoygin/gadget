@@ -62,8 +62,7 @@ namespace op {
                 }
                 vector<unsigned char> img_content;
                 cv::imencode(ext, img, img_content);
-                string img_string = base64_encode(img_content.data(), img_content.size());
-                writer_->put(key, img_string);
+                writer_->put(key, img_content);
             }
         }
 

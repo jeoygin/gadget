@@ -71,12 +71,13 @@ namespace db {
                 return -1;
             }
 
-            string value = get(key);
-            if (value.empty()) {
+            aux.clear();
+            get(key, aux);
+            if (aux.empty()) {
                 return -2;
             }
 
-            dst->put(dst_key, value);
+            dst->put(dst_key, aux);
             return 0;
         }
 
@@ -86,12 +87,13 @@ namespace db {
                 return -1;
             }
 
-            string value = get(key);
-            if (value.empty()) {
+            aux.clear();
+            get(key, aux);
+            if (aux.empty()) {
                 return -2;
             }
 
-            writer->put(dst_key, value);
+            writer->put(dst_key, aux);
             return 0;
         }
 
