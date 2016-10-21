@@ -38,8 +38,18 @@ namespace db {
         }
 
         virtual string value() {
-            return string(static_cast<const char*>(mdb_value_.mv_data),
-                          mdb_value_.mv_size);
+            vector<unsigned char> bytes;
+            this->value(bytes);
+            if (!bytes.empty()) {
+                return base64_encode(bytes.data(), bytes.size());
+            }
+            return "";
+        }
+
+        virtual void value(vector<unsigned char>& value) {
+            value.clear();
+            const char* data = static_cast<const char*>(mdb_value_.mv_data);
+            value.insert(value.end(), data, data + mdb_value_.mv_size);
         }
 
         virtual bool valid() {
@@ -70,6 +80,8 @@ namespace db {
             : mdb_dbi_(mdb_dbi), mdb_txn_(mdb_txn) {
         }
 
+        virtual void put(const string& key, const vector<unsigned char>& value);
+
         virtual void put(const string& key, const string& value);
 
         virtual void flush() {
@@ -89,6 +101,9 @@ namespace db {
         virtual ~LMDBReader() {}
 
         virtual string get(const string& key);
+
+        virtual void get(const string& key, vector<unsigned char>& value);
+
     private:
         MDB_dbi* mdb_dbi_;
         MDB_txn* mdb_txn_;
@@ -117,6 +132,10 @@ namespace db {
         }
 
         virtual string get(const string& key);
+
+        virtual void get(const string& key, vector<unsigned char>& value);
+
+        virtual void put(const string& key, const vector<unsigned char>& value);
 
         virtual void put(const string& key, const string& value);
 

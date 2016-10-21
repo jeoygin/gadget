@@ -68,27 +68,53 @@ namespace db {
         return reader->get(key);
     }
 
+    void LMDB::get(const string& key, vector<unsigned char>& value) {
+        LMDBReader* reader = new_reader();
+        reader->get(key, value);
+    }
+
+    void LMDB::put(const string& key, const vector<unsigned char>& value) {
+        boost::scoped_ptr<LMDBWriter> writer(new_writer());
+        writer->put(key, value);
+    }
+
     void LMDB::put(const string& key, const string& value) {
         boost::scoped_ptr<LMDBWriter> writer(new_writer());
         writer->put(key, value);
     }
 
-    void LMDBWriter::put(const string& key, const string& value) {
+    void LMDBWriter::put(const string& key, const vector<unsigned char>& value) {
         MDB_val mdb_key, mdb_value;
         mdb_key.mv_data = const_cast<char*>(key.data());
         mdb_key.mv_size = key.size();
-        mdb_value.mv_data = const_cast<char*>(value.data());
+        mdb_value.mv_data = const_cast<unsigned char*>(value.data());
         mdb_value.mv_size = value.size();
         MDB_CHECK(mdb_put(mdb_txn_, *mdb_dbi_, &mdb_key, &mdb_value, 0));
     }
 
+    void LMDBWriter::put(const string& key, const string& value) {
+        vector<unsigned char> bytes;
+        base64_decode(value, bytes);
+        this->put(key, bytes);
+    }
+
     string LMDBReader::get(const string& key) {
+        vector<unsigned char> bytes;
+        this->get(key, bytes);
+        if (!bytes.empty()) {
+            return base64_encode(bytes.data(), bytes.size());
+        }
+        return "";
+    }
+
+    void LMDBReader::get(const string& key, vector<unsigned char>& value) {
+        value.clear();
         MDB_val mdb_key, mdb_value;
         mdb_key.mv_data = const_cast<char*>(key.data());
         mdb_key.mv_size = key.size();
         MDB_CHECK(mdb_get(mdb_txn_, *mdb_dbi_, &mdb_key, &mdb_value));
 
-        return string(static_cast<const char*>(mdb_value.mv_data),
-                      mdb_value.mv_size);
+        const char* data = static_cast<const char*>(mdb_value.mv_data);
+        value.insert(value.end(), data, data + mdb_value.mv_size);
     }
  } // namespace db
