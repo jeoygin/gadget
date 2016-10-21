@@ -5,6 +5,7 @@
 #include "cmd/op_equ.hpp"
 #include "cmd/op_gray.hpp"
 #include "cmd/op_invert.hpp"
+#include "cmd/op_info.hpp"
 #include "cmd/op_resize.hpp"
 #include "cmd/op_rotate.hpp"
 #include "cmd/op_save.hpp"
@@ -30,6 +31,8 @@ namespace op {
             op = new EquOP();
         } else if (cmd == "gray") {
             op = new GrayOP();
+        } else if (cmd == "info") {
+            op = new InfoOP();
         } else if (cmd == "invert") {
             op = new InvertOP();
         } else if (cmd == "resize") {

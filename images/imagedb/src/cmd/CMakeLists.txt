@@ -6,6 +6,7 @@ add_library(cmd
   op_clip.cpp
   op_equ.cpp
   op_gray.cpp
+  op_info.cpp
   op_invert.cpp
   op_resize.cpp
   op_rotate.cpp
