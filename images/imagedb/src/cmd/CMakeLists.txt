@@ -12,7 +12,8 @@ add_library(cmd
   op_rotate.cpp
   op_save.cpp
   op_show.cpp
-  op_sizeup.cpp)
+  op_sizeup.cpp
+  op_template.cpp)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g -O2")
 
