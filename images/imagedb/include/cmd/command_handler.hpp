@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <queue>
+#include <map>
 
 #include "config.hpp"
 #include "operation.hpp"
@@ -43,10 +45,30 @@ namespace cmd {
             }
 
             string key = fields[0];
-            content_.clear();
-            db->get(key, content_);
-            if (!content_.empty()) {
-                cv::Mat img = cv::imdecode(content_, CV_LOAD_IMAGE_UNCHANGED);
+            auto it = cache_.find(key);
+            cv::Mat img;
+            if (it != cache_.end()) {
+                img = *(it->second);
+            } else {
+                content_.clear();
+                db->get(key, content_);
+                if (!content_.empty()) {
+                    boost::shared_ptr<cv::Mat> img_ptr(new cv::Mat());
+                    *img_ptr = img = cv::imdecode(content_, CV_LOAD_IMAGE_UNCHANGED);
+                    cache_keys_.push(key);
+                    cache_[key] = img_ptr;
+
+                    while (cache_keys_.size() > 10000) {
+                        std::string to_remove_key = cache_keys_.front();
+                        cache_.erase(to_remove_key);
+                        cache_keys_.pop();
+                    }
+                } else {
+                    return -4;
+                }
+            }
+
+            if (img.data != NULL) {
                 ops_[0]->execute(img, fields);
             } else {
                 return -4;
@@ -73,6 +95,8 @@ namespace cmd {
     private:
         const std::vector<boost::shared_ptr<op::Operation>>& ops_;
         std::vector<unsigned char> content_;
+        std::queue<std::string> cache_keys_;
+        std::map<std::string, boost::shared_ptr<cv::Mat>> cache_;
     };
 
     class SaveProcessor : public CommandProcessor {
