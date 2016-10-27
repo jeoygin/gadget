@@ -11,6 +11,30 @@
 #include "fs/fs.hpp"
 
 namespace fs {
+    bool dir_exists(const char* dir) {
+        struct stat info;
+        if (stat(dir, &info) != 0) {
+            return false;
+        } else if ( info.st_mode & S_IFDIR ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool dir_exists(const string& dir) {
+        return dir_exists(dir.c_str());
+    }
+
+    bool file_exists(const char* file) {
+        struct stat info;
+        return stat(file, &info) == 0;
+    }
+
+    bool file_exists(const string& file) {
+        return file_exists(file.c_str());
+    }
+
     int make_dir(const char * dir, mode_t mode) {
         struct stat st = {0};
 
