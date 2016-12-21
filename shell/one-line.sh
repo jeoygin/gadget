@@ -49,6 +49,26 @@ echo "/usr/local/bin"  | awk '{split($1, parts ,"/"); print parts[length(parts)]
 echo $'a\nb\nc\nd\n' | pcregrep -M 'b\nc'
 
 #
+# Diff
+#
+
+
+## Line diff
+
+$ git --no-pager diff --color=auto --no-ext-diff --no-index "$@"
+$ diff --unified "$@" | colordiff --difftype diffu
+
+## Word diff
+
+$ git --no-pager diff --color=auto --no-ext-diff --no-index --color-words "$@"
+$ wdiff --avoid-wraps --start-delete="$(print -n $FG[red])" --end-delete="$(print -n $FG[none])" --start-insert="$(print -n $FG[green])" --end-insert="$(print -n $FG[none])" "$@" | sed 's/^\(@@\( [+-][[:digit:]]*,[[:digit:]]*\)\{2\} @@\)$/;5;6m\10m/g'
+$ wdiff
+
+## Character diff
+
+$ git --no-pager diff --color=auto --no-ext-diff --no-index --color-words --word-diff-regex=.
+
+#
 # Git
 #
 
