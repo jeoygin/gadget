@@ -8,6 +8,12 @@ $ ^foo^bar
 ## Create backup file
 $ cp filename{,.bak}
 
+## Convert string case
+$ echo "$s" | tr '[:upper:]' '[:lower:]'
+$ echo "$s" | awk '{print tolower($0)}'
+$ echo "${s,,}" # Bash 4.0
+$ echo "$s" | perl -ne 'print lc'
+
 #
 # Xargs
 #
