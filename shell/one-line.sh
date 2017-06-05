@@ -14,6 +14,9 @@ $ echo "$s" | awk '{print tolower($0)}'
 $ echo "${s,,}" # Bash 4.0
 $ echo "$s" | perl -ne 'print lc'
 
+## String Substitution
+$ echo "${str//match/replacement}"
+
 #
 # Xargs
 #
@@ -123,6 +126,20 @@ $ python -m SimpleHTTPServer 8000 # python 2
 $ python -m http.server 8000 # python 3
 $ npm install -g http-server && http-server -p 8000 # Node.js
 $ curl https://gist.github.com/willurd/5720255 # for more other languages
+
+#
+# Network Proxy
+#
+
+## Socks => HTTP
+
+$ polipo socksParentProxy=localhost:1080
+
+## Command Line Proxy
+
+$ export http_proxy=127.0.0.1:8123
+$ export https_proxy=127.0.0.1:8123
+$ git config http.proxy 127.0.0.1:8123
 
 #
 # Linux Distribution Package Manager
