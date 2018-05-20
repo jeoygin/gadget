@@ -15,7 +15,12 @@ $ echo "${s,,}" # Bash 4.0
 $ echo "$s" | perl -ne 'print lc'
 
 ## String Substitution
-$ echo "${str//match/replacement}"
+$ echo "${str/match/replacement}"
+$ echo "${arr[@]/#/--include=}" # arr=(a b c)
+
+## Join Lines
+$ ls | paste -sd ',' -
+$ ls | tr '\n' ','
 
 #
 # Xargs
